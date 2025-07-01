@@ -1,0 +1,5 @@
+import common
+
+module scene_client{
+    move ntf(SceneInfo info);
+}

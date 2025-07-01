@@ -1,0 +1,6 @@
+import common
+
+module scene {
+    move ntf(Pos start, Direction dir);
+    building ntf(Building[] buildings);
+}

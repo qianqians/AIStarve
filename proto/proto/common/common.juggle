@@ -1,0 +1,43 @@
+enum Direction {
+	Up = 1;
+	Down = 2;
+	Left = 3;
+	Right = 4;
+}
+
+struct Pos {
+	int32 X;
+	int32 Y;
+}
+
+struct Building {
+	int64 UserGuid;  // 所属用户uid
+	int32 BuildingId; // 建筑id
+	string BuildingResource; // 建筑图片资源
+	Pos topLeft;
+	Pos bottomRight;
+}
+
+struct Fence {
+	int64 UserGuid; // 所属用户uid
+	int32 FenceId; // 围栏id
+	string FenceName; // 围栏名称
+	Pos start;
+	Pos end;
+}
+
+struct UserInformation
+{
+	string UserName; // 用户名
+	int64 UserGuid;  // 用户uid
+	string Avatar;   // 用户头像
+	int32 Gender;    // 用户性别
+	int32 Level;     // 用户等级
+	Pos Pos;         // 用户位置
+}
+
+struct SceneInfo {
+	Building[] buildings;
+	Fence[] fences;
+	UserInformation users;
+}
