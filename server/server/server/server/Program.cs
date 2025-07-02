@@ -1,8 +1,8 @@
 ﻿using Abelkhan;
 
-namespace Login
+namespace Server
 {
-    class Login
+    class Server
     {
         public static string DyAppID;
         public static string DyAppSecret;

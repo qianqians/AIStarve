@@ -1,6 +1,6 @@
 ﻿using Abelkhan;
 
-namespace Login
+namespace Server
 {
     class client_msg_handle
     {
@@ -22,10 +22,10 @@ namespace Login
             var token = $"lock_{account}";
             try
             {
-                await Login._redis_handle.Lock(lock_key, token, 1000);
+                await Server._redis_handle.Lock(lock_key, token, 1000);
 
                 var key = RedisHelp.BuildPlayerSvrCacheKey(account);
-                var _player_proxy_name = await Login._redis_handle.GetStrData(key);
+                var _player_proxy_name = await Server._redis_handle.GetStrData(key);
                 if (string.IsNullOrEmpty(_player_proxy_name))
                 {
                     //random_player_svr_rsp(account, rsp);
@@ -45,7 +45,7 @@ namespace Login
                 }
 
                 var gate_key = RedisHelp.BuildPlayerGateCacheKey(account);
-                await Login._redis_handle.SetStrData(gate_key, Hub.Hub._gates.get_client_gate_name(uuid), RedisHelp.PlayerSvrInfoCacheTimeout);
+                await Server._redis_handle.SetStrData(gate_key, Hub.Hub._gates.get_client_gate_name(uuid), RedisHelp.PlayerSvrInfoCacheTimeout);
             }
             catch (System.Exception ex)
             {
@@ -54,7 +54,7 @@ namespace Login
             }
             finally
             {
-                await Login._redis_handle.UnLock(lock_key, token);
+                await Server._redis_handle.UnLock(lock_key, token);
             }
         }
     }

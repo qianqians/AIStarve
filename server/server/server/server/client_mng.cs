@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Login
+namespace Server
 {
     public class player_proxy
     {
