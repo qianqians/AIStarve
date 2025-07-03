@@ -9,6 +9,7 @@ namespace Abelkhan
 /*this enum code is codegen by abelkhan codegen for c#*/
 
     public enum Direction{
+        None = 0,
         Up = 1,
         Down = 2,
         Left = 3,
@@ -149,6 +150,7 @@ namespace Abelkhan
         public Int32 Gender;
         public Int32 Level;
         public Pos Pos;
+        public Direction dir;
         public static MsgPack.MessagePackObjectDictionary UserInformation_to_protcol(UserInformation _struct){
         if (_struct == null) {
             return null;
@@ -161,6 +163,7 @@ namespace Abelkhan
             _protocol.Add("Gender", _struct.Gender);
             _protocol.Add("Level", _struct.Level);
             _protocol.Add("Pos", new MsgPack.MessagePackObject(Pos.Pos_to_protcol(_struct.Pos)));
+            _protocol.Add("dir", (Int32)_struct.dir);
             return _protocol;
         }
         public static UserInformation protcol_to_UserInformation(MsgPack.MessagePackObjectDictionary _protocol){
@@ -188,6 +191,9 @@ namespace Abelkhan
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "Pos"){
                     _struct07924b8f_25bc_32a4_b436_da6af6116572.Pos = Pos.protcol_to_Pos(((MsgPack.MessagePackObject)i.Value).AsDictionary());
                 }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "dir"){
+                    _struct07924b8f_25bc_32a4_b436_da6af6116572.dir = (Direction)((MsgPack.MessagePackObject)i.Value).AsInt32();
+                }
             }
             return _struct07924b8f_25bc_32a4_b436_da6af6116572;
         }
@@ -197,7 +203,7 @@ namespace Abelkhan
     {
         public List<Building> buildings;
         public List<Fence> fences;
-        public UserInformation users;
+        public List<UserInformation> users;
         public static MsgPack.MessagePackObjectDictionary SceneInfo_to_protcol(SceneInfo _struct){
         if (_struct == null) {
             return null;
@@ -218,7 +224,13 @@ namespace Abelkhan
                 }
                 _protocol.Add("fences", new MsgPack.MessagePackObject(_array_fences));
             }
-            _protocol.Add("users", new MsgPack.MessagePackObject(UserInformation.UserInformation_to_protcol(_struct.users)));
+            if (_struct.users != null) {
+                var _array_users = new List<MsgPack.MessagePackObject>();
+                foreach(var v_ in _struct.users){
+                    _array_users.Add( new MsgPack.MessagePackObject(UserInformation.UserInformation_to_protcol(v_)));
+                }
+                _protocol.Add("users", new MsgPack.MessagePackObject(_array_users));
+            }
             return _protocol;
         }
         public static SceneInfo protcol_to_SceneInfo(MsgPack.MessagePackObjectDictionary _protocol){
@@ -243,10 +255,51 @@ namespace Abelkhan
                     }
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "users"){
-                    _struct4f50ee72_55d3_3593_a651_f16393a46309.users = UserInformation.protcol_to_UserInformation(((MsgPack.MessagePackObject)i.Value).AsDictionary());
+                    _struct4f50ee72_55d3_3593_a651_f16393a46309.users = new List<UserInformation>();
+                    var _protocol_array = ((MsgPack.MessagePackObject)i.Value).AsList();
+                    foreach (var v_ in _protocol_array){
+                        _struct4f50ee72_55d3_3593_a651_f16393a46309.users.Add(UserInformation.protcol_to_UserInformation(((MsgPack.MessagePackObject)v_).AsDictionary()));
+                    }
                 }
             }
             return _struct4f50ee72_55d3_3593_a651_f16393a46309;
+        }
+    }
+
+    public class UserMoveInfo
+    {
+        public Int64 UserGuid;
+        public Pos Pos;
+        public Direction dir;
+        public static MsgPack.MessagePackObjectDictionary UserMoveInfo_to_protcol(UserMoveInfo _struct){
+        if (_struct == null) {
+            return null;
+        }
+
+            var _protocol = new MsgPack.MessagePackObjectDictionary();
+            _protocol.Add("UserGuid", _struct.UserGuid);
+            _protocol.Add("Pos", new MsgPack.MessagePackObject(Pos.Pos_to_protcol(_struct.Pos)));
+            _protocol.Add("dir", (Int32)_struct.dir);
+            return _protocol;
+        }
+        public static UserMoveInfo protcol_to_UserMoveInfo(MsgPack.MessagePackObjectDictionary _protocol){
+        if (_protocol == null) {
+            return null;
+        }
+
+            var _structde5d91e1_5db9_3a5e_985d_644be21eb795 = new UserMoveInfo();
+            foreach (var i in _protocol){
+                if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
+                    _structde5d91e1_5db9_3a5e_985d_644be21eb795.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsInt64();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "Pos"){
+                    _structde5d91e1_5db9_3a5e_985d_644be21eb795.Pos = Pos.protcol_to_Pos(((MsgPack.MessagePackObject)i.Value).AsDictionary());
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "dir"){
+                    _structde5d91e1_5db9_3a5e_985d_644be21eb795.dir = (Direction)((MsgPack.MessagePackObject)i.Value).AsInt32();
+                }
+            }
+            return _structde5d91e1_5db9_3a5e_985d_644be21eb795;
         }
     }
 

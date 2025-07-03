@@ -29,9 +29,19 @@ namespace Abelkhan
             rsp_cb_scene_client_handle = rsp_cb_scene_client_handle_;
         }
 
-        public void move(SceneInfo info){
+        public void scene_info(SceneInfo info){
+            var _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8 = new ArrayList();
+            _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8.Add(SceneInfo.SceneInfo_to_protcol(info));
+            Hub.Hub._gates.call_client(client_uuid_e2b3f311_3d11_3958_8f94_f53379eb568e, "scene_client_scene_info", _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8);
+        }
+
+        public void move(List<UserMoveInfo> info){
             var _argv_33efb72e_9227_32af_a058_169be114a277 = new ArrayList();
-            _argv_33efb72e_9227_32af_a058_169be114a277.Add(SceneInfo.SceneInfo_to_protcol(info));
+            var _array_391fd3d4_2d55_3f5e_9223_7f450a814a15 = new ArrayList();
+            foreach(var v_0c15545d_d42a_5fe0_bed7_a9496851e88b in info){
+                _array_391fd3d4_2d55_3f5e_9223_7f450a814a15.Add(UserMoveInfo.UserMoveInfo_to_protcol(v_0c15545d_d42a_5fe0_bed7_a9496851e88b));
+            }
+            _argv_33efb72e_9227_32af_a058_169be114a277.Add(_array_391fd3d4_2d55_3f5e_9223_7f450a814a15);
             Hub.Hub._gates.call_client(client_uuid_e2b3f311_3d11_3958_8f94_f53379eb568e, "scene_client_move", _argv_33efb72e_9227_32af_a058_169be114a277);
         }
 

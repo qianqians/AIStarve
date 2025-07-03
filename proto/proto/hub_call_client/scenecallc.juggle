@@ -1,5 +1,6 @@
 import common
 
 module scene_client{
-    move ntf(SceneInfo info);
+    scene_info ntf(SceneInfo info);
+    move ntf(UserMoveInfo[] info);
 }

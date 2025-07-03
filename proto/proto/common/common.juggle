@@ -1,4 +1,5 @@
 enum Direction {
+	None = 0;
 	Up = 1;
 	Down = 2;
 	Left = 3;
@@ -34,10 +35,17 @@ struct UserInformation
 	int32 Gender;    // 用户性别
 	int32 Level;     // 用户等级
 	Pos Pos;         // 用户位置
+	Direction dir;   // 用户移动状态
 }
 
 struct SceneInfo {
 	Building[] buildings;
 	Fence[] fences;
-	UserInformation users;
+	UserInformation[] users;
+}
+
+struct UserMoveInfo {
+	int64 UserGuid;
+	Pos Pos; 
+	Direction dir;
 }
