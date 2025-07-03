@@ -29,6 +29,7 @@ struct Fence {
 
 struct UserInformation
 {
+	string sceneID;
 	string UserName; // 用户名
 	int64 UserGuid;  // 用户uid
 	string Avatar;   // 用户头像
