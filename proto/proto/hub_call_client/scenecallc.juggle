@@ -1,6 +1,6 @@
 import common
 
 module scene_client{
-    scene_info ntf(SceneInfo info);
-    move ntf(UserMoveInfo[] info);
+    scene_info multicast(SceneInfo info);
+    move multicast(UserMoveInfo[] info);
 }

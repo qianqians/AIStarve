@@ -12,7 +12,7 @@ struct Pos {
 }
 
 struct Building {
-	int64 UserGuid;  // 所属用户uid
+	string UserGuid;  // 所属用户uid
 	int32 BuildingId; // 建筑id
 	string BuildingResource; // 建筑图片资源
 	Pos topLeft;
@@ -20,7 +20,7 @@ struct Building {
 }
 
 struct Fence {
-	int64 UserGuid; // 所属用户uid
+	string UserGuid; // 所属用户uid
 	int32 FenceId; // 围栏id
 	string FenceName; // 围栏名称
 	Pos start;
@@ -31,7 +31,7 @@ struct UserInformation
 {
 	string sceneID;
 	string UserName; // 用户名
-	int64 UserGuid;  // 用户uid
+	string UserGuid;  // 用户uid
 	string Avatar;   // 用户头像
 	int32 Gender;    // 用户性别
 	int32 Level;     // 用户等级
@@ -46,7 +46,7 @@ struct SceneInfo {
 }
 
 struct UserMoveInfo {
-	int64 UserGuid;
+	string UserGuid;
 	Pos Pos; 
 	Direction dir;
 }

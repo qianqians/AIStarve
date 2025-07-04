@@ -3,6 +3,7 @@ using InfluxData.Net.InfluxDb.Models.Responses;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Server
@@ -18,25 +19,35 @@ namespace Server
 
     public class Player
     {
-        private UserInformation userInformation = null;
-        private List<Fence> fences = [];
-        private List<Building> buildings = [];
+        public UserInformation userInformation = null;
+        public List<Fence> fences = [];
+        public List<Building> buildings = [];
 
-        private bool isOnline = false;
+        private string netUUID = string.Empty;
+        public string NetUUID
+        {
+            get {
+                return netUUID;
+            }
+
+            set {
+                netUUID = value;
+            }
+        }
+
         public bool IsOnline
         {
-            get { 
-                return isOnline; 
-            } 
-        
-            set {
-                isOnline = value;
+            get
+            {
+                return netUUID != string.Empty;
             }
+
+            private set {}
         }
 
         private Hub.DBProxyProxy _dbProxy;
 
-        static private Task<UserInformation> loadUserInformation(Hub.DBProxyProxy _dbProxy, string sceneName, long userGuid)
+        static private Task<UserInformation> loadUserInformation(Hub.DBProxyProxy _dbProxy, string sceneName, string userGuid)
         {
             var _t = new TaskCompletionSource<UserInformation>();
 
@@ -65,7 +76,7 @@ namespace Server
             return _t.Task;
         }
 
-        private Task loadFence(string sceneName, long userGuid)
+        private Task loadFence(string sceneName, string userGuid)
         {
             var _t = new TaskCompletionSource();
 
@@ -92,7 +103,7 @@ namespace Server
             return _t.Task;
         }
 
-        private Task loadBuilding(string sceneName, long userGuid)
+        private Task loadBuilding(string sceneName, string userGuid)
         {
             var _t = new TaskCompletionSource();
 
@@ -119,7 +130,7 @@ namespace Server
             return _t.Task;
         }
 
-        public static async Task<Player> LoadPlayer(Hub.DBProxyProxy _dbProxy, string sceneName, long userGuid)
+        public static async Task<Player> LoadPlayer(Hub.DBProxyProxy _dbProxy, string sceneName, string userGuid)
         {
             var userInfo = await loadUserInformation(_dbProxy, sceneName, userGuid);
             if (userInfo == null)
@@ -135,6 +146,11 @@ namespace Server
             await player.loadBuilding(sceneName, userGuid);
 
             return player;
+        }
+
+        public bool CheckInFence(Pos pos)
+        {
+            return false;
         }
     }
 
@@ -157,8 +173,10 @@ namespace Server
             private set { }
         }
 
-        private Dictionary<long, Player> players = new();
-        public Dictionary<long, Player> Players { 
+        public static scene_client_caller SceneClientCaller = new scene_client_caller();
+
+        private Dictionary<string, Player> players = new();
+        public Dictionary<string, Player> Players { 
             get { 
                 return players; 
             } 
@@ -168,11 +186,11 @@ namespace Server
         private string sceneName;
         private string sceneUUID;
 
-        private Task<List<long>> loadPlayers()
+        private Task<List<string>> loadPlayers()
         {
-            var _t = new TaskCompletionSource<List<long>>();
+            var _t = new TaskCompletionSource<List<string>>();
 
-            List<long> list = null;
+            List<string> list = null;
             var query = new DBQueryHelper();
             query.condition("DataType", "PlayerList");
             query.condition("SceneName", sceneName);
@@ -185,7 +203,7 @@ namespace Server
                 if (value.Count == 1)
                 {
                     var doc = value[0] as BsonDocument;
-                    list = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<List<long>>(doc as BsonDocument);
+                    list = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<List<string>>(doc as BsonDocument);
                     _t.SetResult(list);
                 }
                 else
@@ -232,7 +250,10 @@ namespace Server
                 foreach (var playerGuid in playerList)
                 {
                     var player = await Player.LoadPlayer(scene.dbProxy, scene.sceneName, playerGuid);
-                    scene.Players.Add(playerGuid, player);
+                    if (player != null)
+                    {
+                        scene.Players.Add(playerGuid, player);
+                    }
                 }
             }
 
@@ -249,6 +270,90 @@ namespace Server
             await scene.saveScene();
 
             return scene;
+        }
+
+        private SceneInfo sceneInfo()
+        {
+            var info = new SceneInfo();
+            info.users = new List<UserInformation>();
+            info.fences = new List<Fence>();
+            info.buildings = new List<Building>();
+
+            foreach(var player in players.Values)
+            {
+                if (player.IsOnline)
+                {
+                    info.users.Add(player.userInformation);
+                } 
+
+                info.fences.AddRange(player.fences);
+                info.buildings.AddRange(player.buildings);
+            }
+
+            return info;
+        }
+
+        public bool CheckInFence(Pos pos)
+        {
+            foreach (var player in players.Values)
+            {
+                if (player.CheckInFence(pos))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public Task PlayerIntoScene(string userGuid, string userName, string userNetUUID)
+        {
+            var _t = new TaskCompletionSource();
+
+            var player = players.GetValueOrDefault(userGuid, null);
+            if (player == null)
+            {
+                player = new Player();
+                player.userInformation = new UserInformation();
+                player.userInformation.UserName = userName;
+                player.userInformation.UserGuid = userGuid;
+
+                do
+                {
+                    var y = RandomHelper.RandomInt(Length);
+                    var x = RandomHelper.RandomInt(Width);
+                    player.userInformation.Pos.X = x;
+                    player.userInformation.Pos.Y = y;
+                } while (!CheckInFence(player.userInformation.Pos));
+            }
+            player.NetUUID = Guid.NewGuid().ToString();
+
+            SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(sceneInfo());
+
+            return _t.Task;
+        }
+    }
+
+    public class SceneMgr()
+    {
+        private Dictionary<string, Scene> scenes = new();
+        public Dictionary<string, Scene> Scenes
+        {
+            get
+            {
+                return scenes;
+            }
+
+            private set { }
+        }
+
+        public async Task<Scene> CreateScene(string sceneName)
+        {
+            return await Scene.CreateScene(sceneName);
+        }
+
+        public Scene GetScene(string sceneName)
+        {
+            return scenes.GetValueOrDefault(sceneName, null);
         }
     }
 }

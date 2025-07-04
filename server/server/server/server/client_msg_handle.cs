@@ -22,10 +22,10 @@ namespace Server
             var token = $"lock_{account}";
             try
             {
-                await Server._redis_handle.Lock(lock_key, token, 1000);
+                await Server.RedisHandle.Lock(lock_key, token, 1000);
 
                 var key = RedisHelp.BuildPlayerSvrCacheKey(account);
-                var _player_proxy_name = await Server._redis_handle.GetStrData(key);
+                var _player_proxy_name = await Server.RedisHandle.GetStrData(key);
                 if (string.IsNullOrEmpty(_player_proxy_name))
                 {
                     //random_player_svr_rsp(account, rsp);
@@ -45,7 +45,7 @@ namespace Server
                 }
 
                 var gate_key = RedisHelp.BuildPlayerGateCacheKey(account);
-                await Server._redis_handle.SetStrData(gate_key, Hub.Hub._gates.get_client_gate_name(uuid), RedisHelp.PlayerSvrInfoCacheTimeout);
+                await Server.RedisHandle.SetStrData(gate_key, Hub.Hub._gates.get_client_gate_name(uuid), RedisHelp.PlayerSvrInfoCacheTimeout);
             }
             catch (System.Exception ex)
             {
@@ -54,7 +54,7 @@ namespace Server
             }
             finally
             {
-                await Server._redis_handle.UnLock(lock_key, token);
+                await Server.RedisHandle.UnLock(lock_key, token);
             }
         }
     }

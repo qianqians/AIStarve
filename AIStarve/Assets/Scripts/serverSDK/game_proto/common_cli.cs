@@ -50,7 +50,7 @@ namespace Abelkhan
 
     public class Building
     {
-        public Int64 UserGuid;
+        public string UserGuid;
         public Int32 BuildingId;
         public string BuildingResource;
         public Pos topLeft;
@@ -76,7 +76,7 @@ namespace Abelkhan
             var _structe37b319b_d83e_3aee_bc74_701941f721c3 = new Building();
             foreach (var i in _protocol){
                 if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
-                    _structe37b319b_d83e_3aee_bc74_701941f721c3.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsInt64();
+                    _structe37b319b_d83e_3aee_bc74_701941f721c3.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "BuildingId"){
                     _structe37b319b_d83e_3aee_bc74_701941f721c3.BuildingId = ((MsgPack.MessagePackObject)i.Value).AsInt32();
@@ -97,7 +97,7 @@ namespace Abelkhan
 
     public class Fence
     {
-        public Int64 UserGuid;
+        public string UserGuid;
         public Int32 FenceId;
         public string FenceName;
         public Pos start;
@@ -123,7 +123,7 @@ namespace Abelkhan
             var _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8 = new Fence();
             foreach (var i in _protocol){
                 if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
-                    _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsInt64();
+                    _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "FenceId"){
                     _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.FenceId = ((MsgPack.MessagePackObject)i.Value).AsInt32();
@@ -144,8 +144,9 @@ namespace Abelkhan
 
     public class UserInformation
     {
+        public string sceneID;
         public string UserName;
-        public Int64 UserGuid;
+        public string UserGuid;
         public string Avatar;
         public Int32 Gender;
         public Int32 Level;
@@ -157,6 +158,7 @@ namespace Abelkhan
         }
 
             var _protocol = new MsgPack.MessagePackObjectDictionary();
+            _protocol.Add("sceneID", _struct.sceneID);
             _protocol.Add("UserName", _struct.UserName);
             _protocol.Add("UserGuid", _struct.UserGuid);
             _protocol.Add("Avatar", _struct.Avatar);
@@ -173,11 +175,14 @@ namespace Abelkhan
 
             var _struct07924b8f_25bc_32a4_b436_da6af6116572 = new UserInformation();
             foreach (var i in _protocol){
-                if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserName"){
+                if (((MsgPack.MessagePackObject)i.Key).AsString() == "sceneID"){
+                    _struct07924b8f_25bc_32a4_b436_da6af6116572.sceneID = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserName"){
                     _struct07924b8f_25bc_32a4_b436_da6af6116572.UserName = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
-                    _struct07924b8f_25bc_32a4_b436_da6af6116572.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsInt64();
+                    _struct07924b8f_25bc_32a4_b436_da6af6116572.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "Avatar"){
                     _struct07924b8f_25bc_32a4_b436_da6af6116572.Avatar = ((MsgPack.MessagePackObject)i.Value).AsString();
@@ -268,7 +273,7 @@ namespace Abelkhan
 
     public class UserMoveInfo
     {
-        public Int64 UserGuid;
+        public string UserGuid;
         public Pos Pos;
         public Direction dir;
         public static MsgPack.MessagePackObjectDictionary UserMoveInfo_to_protcol(UserMoveInfo _struct){
@@ -290,7 +295,7 @@ namespace Abelkhan
             var _structde5d91e1_5db9_3a5e_985d_644be21eb795 = new UserMoveInfo();
             foreach (var i in _protocol){
                 if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
-                    _structde5d91e1_5db9_3a5e_985d_644be21eb795.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsInt64();
+                    _structde5d91e1_5db9_3a5e_985d_644be21eb795.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "Pos"){
                     _structde5d91e1_5db9_3a5e_985d_644be21eb795.Pos = Pos.protcol_to_Pos(((MsgPack.MessagePackObject)i.Value).AsDictionary());

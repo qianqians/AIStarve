@@ -4,12 +4,8 @@ namespace Server
 {
     class Server
     {
-        public static string DyAppID;
-        public static string DyAppSecret;
-        public static string WxAppID;
-        public static string WxAppSecret;
-        public static RedisHandle _redis_handle;
-        //public static player_proxy_mng _player_proxy_mng = new ();
+        public static RedisHandle RedisHandle;
+        public static SceneMgr SceneMgr;
 
         static void Main(string[] args)
 		{
@@ -17,20 +13,16 @@ namespace Server
 
             if (!Hub.Hub._root_config.has_key("redis_for_mq_pwd"))
             {
-                _redis_handle = new RedisHandle(Hub.Hub._root_config.get_value_string("redis_for_cache"), string.Empty);
+                RedisHandle = new RedisHandle(Hub.Hub._root_config.get_value_string("redis_for_cache"), string.Empty);
             }
             else
             {
-                _redis_handle = new RedisHandle(Hub.Hub._root_config.get_value_string("redis_for_cache"), Hub.Hub._root_config.get_value_string("redis_for_mq_pwd"));
+                RedisHandle = new RedisHandle(Hub.Hub._root_config.get_value_string("redis_for_cache"), Hub.Hub._root_config.get_value_string("redis_for_mq_pwd"));
             }
 
             HttpClientWrapper.Init();
 
-            DyAppID = Hub.Hub._config.get_value_string("DyAppID");
-            DyAppSecret = Hub.Hub._config.get_value_string("DyAppSecret");
-            WxAppID = Hub.Hub._config.get_value_string("WxAppID");
-            WxAppSecret = Hub.Hub._config.get_value_string("WxAppSecret");
-
+            SceneMgr = new SceneMgr();
             var _client_msg_handle = new client_msg_handle();
 
             _hub.on_hubproxy += on_hubproxy;
