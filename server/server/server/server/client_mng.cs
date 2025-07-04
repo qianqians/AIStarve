@@ -22,9 +22,21 @@ namespace Server
         private List<Fence> fences = [];
         private List<Building> buildings = [];
 
+        private bool isOnline = false;
+        public bool IsOnline
+        {
+            get { 
+                return isOnline; 
+            } 
+        
+            set {
+                isOnline = value;
+            }
+        }
+
         private Hub.DBProxyProxy _dbProxy;
 
-        static private Task<UserInformation> loadUserInformation(Hub.DBProxyProxy _dbProxy, string sceneName, string userGuid)
+        static private Task<UserInformation> loadUserInformation(Hub.DBProxyProxy _dbProxy, string sceneName, long userGuid)
         {
             var _t = new TaskCompletionSource<UserInformation>();
 
@@ -53,7 +65,7 @@ namespace Server
             return _t.Task;
         }
 
-        private Task loadFence(string sceneName, string userGuid)
+        private Task loadFence(string sceneName, long userGuid)
         {
             var _t = new TaskCompletionSource();
 
@@ -69,18 +81,18 @@ namespace Server
                         var _fence = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<Fence>(doc as BsonDocument);
                         fences.Add(_fence);
                     }
-                    _t.SetResult();
                 }
                 else
                 {
-                    _t.SetResult();
                 }
-            }, () => { });
+            }, () => {
+                _t.SetResult();
+            });
 
             return _t.Task;
         }
 
-        private Task loadBuilding(string sceneName, string userGuid)
+        private Task loadBuilding(string sceneName, long userGuid)
         {
             var _t = new TaskCompletionSource();
 
@@ -96,18 +108,18 @@ namespace Server
                         var _building = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<Building>(doc as BsonDocument);
                         buildings.Add(_building);
                     }
-                    _t.SetResult();
                 }
                 else
                 {
-                    _t.SetResult();
                 }
-            }, () => { });
+            }, () => {
+                _t.SetResult();
+            });
 
             return _t.Task;
         }
 
-        public static async Task<Player> LoadPlayer(Hub.DBProxyProxy _dbProxy, string sceneName, string userGuid)
+        public static async Task<Player> LoadPlayer(Hub.DBProxyProxy _dbProxy, string sceneName, long userGuid)
         {
             var userInfo = await loadUserInformation(_dbProxy, sceneName, userGuid);
             if (userInfo == null)
@@ -128,6 +140,110 @@ namespace Server
 
     public class Scene
     {
-        private Hub.DBProxyProxy _dbProxy;
+        public static int Length
+        {
+            get {
+                return 1024;
+            }
+            private set {}
+        }
+
+        public static int Width
+        {
+            get
+            {
+                return 1024;
+            }
+            private set { }
+        }
+
+        private Dictionary<long, Player> players = new();
+        public Dictionary<long, Player> Players { 
+            get { 
+                return players; 
+            } 
+        }
+
+        private Hub.DBProxyProxy dbProxy;
+        private string sceneName;
+
+        private Task<List<long>> loadPlayers()
+        {
+            var _t = new TaskCompletionSource<List<long>>();
+
+            List<long> list = null;
+            var query = new DBQueryHelper();
+            query.condition("DataType", "PlayerList");
+            query.condition("SceneName", sceneName);
+            dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
+                if (value.Count > 1)
+                {
+                    new PlayerFromDBError($"repeated PlayerList sceneName:{sceneName}");
+                }
+                if (value.Count == 1)
+                {
+                    var doc = value[0] as BsonDocument;
+                    list = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<List<long>>(doc as BsonDocument);
+                    _t.SetResult(list);
+                }
+                else
+                {
+                    _t.SetResult(list);
+                }
+            }, () => {
+            });
+
+            return _t.Task;
+        }
+
+        private Scene()
+        {
+        }
+
+        private Task saveScene()
+        {
+            var _t = new TaskCompletionSource();
+
+            var query = new DBQueryHelper();
+            query.condition("DataType", "PlayerList");
+            query.condition("SceneName", sceneName);
+            var data = new UpdateDataHelper();
+            data.set(players.Keys);
+            dbProxy.getCollection("aiStarve", "game").updataPersistedObject(query.query(), data.data(), true, (ret) => {
+                Log.Log.info($"Scene saveScene updataPersistedObject result:{ret}");
+            });
+
+            return _t.Task;
+        }
+
+        public static async Task<Scene> LoadScene(string _sceneName)
+        {
+            var scene = new Scene();
+            scene.dbProxy = Hub.Hub.get_random_dbproxyproxy();
+            scene.sceneName = _sceneName;
+
+            var playerList = await scene.loadPlayers();
+            if (playerList != null)
+            {
+                foreach (var playerGuid in playerList)
+                {
+                    var player = await Player.LoadPlayer(scene.dbProxy, scene.sceneName, playerGuid);
+                    scene.Players.Add(playerGuid, player);
+                }
+            }
+
+            return scene;
+        }
+
+        public static async Task<Scene> CreateScene(string _sceneName)
+        {
+            var scene = new Scene();
+            scene.dbProxy = Hub.Hub.get_random_dbproxyproxy();
+            scene.sceneName = _sceneName;
+
+            await scene.saveScene();
+
+            return scene;
+        }
     }
 }
