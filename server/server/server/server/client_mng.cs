@@ -166,6 +166,7 @@ namespace Server
 
         private Hub.DBProxyProxy dbProxy;
         private string sceneName;
+        private string sceneUUID;
 
         private Task<List<long>> loadPlayers()
         {
@@ -175,6 +176,7 @@ namespace Server
             var query = new DBQueryHelper();
             query.condition("DataType", "PlayerList");
             query.condition("SceneName", sceneName);
+            query.condition("SceneUUID", sceneUUID);
             dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
                 if (value.Count > 1)
                 {
@@ -207,6 +209,7 @@ namespace Server
             var query = new DBQueryHelper();
             query.condition("DataType", "PlayerList");
             query.condition("SceneName", sceneName);
+            query.condition("SceneUUID", sceneUUID);
             var data = new UpdateDataHelper();
             data.set(players.Keys);
             dbProxy.getCollection("aiStarve", "game").updataPersistedObject(query.query(), data.data(), true, (ret) => {
@@ -216,11 +219,12 @@ namespace Server
             return _t.Task;
         }
 
-        public static async Task<Scene> LoadScene(string _sceneName)
+        public static async Task<Scene> LoadScene(string _sceneName, string _sceneUUID)
         {
             var scene = new Scene();
             scene.dbProxy = Hub.Hub.get_random_dbproxyproxy();
             scene.sceneName = _sceneName;
+            scene.sceneUUID = _sceneUUID;
 
             var playerList = await scene.loadPlayers();
             if (playerList != null)
@@ -240,6 +244,7 @@ namespace Server
             var scene = new Scene();
             scene.dbProxy = Hub.Hub.get_random_dbproxyproxy();
             scene.sceneName = _sceneName;
+            scene.sceneUUID = Guid.NewGuid().ToString();
 
             await scene.saveScene();
 
