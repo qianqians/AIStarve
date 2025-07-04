@@ -17,7 +17,8 @@ namespace Abelkhan
     }
     public enum FenceType{
         Fence = 1,
-        FenceGate = 2
+        FenceGate = 2,
+        FenceGatePWD = 3
     }
 /*this struct code is codegen by abelkhan codegen for c#*/
     public class Pos

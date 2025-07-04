@@ -22,6 +22,7 @@ struct Building {
 enum FenceType {
 	Fence = 1;
 	FenceGate = 2;
+	FenceGatePWD = 3;
 }
 
 struct Fence {
