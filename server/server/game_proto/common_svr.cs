@@ -15,6 +15,10 @@ namespace Abelkhan
         Left = 3,
         Right = 4
     }
+    public enum FenceType{
+        Fence = 1,
+        FenceGate = 2
+    }
 /*this struct code is codegen by abelkhan codegen for c#*/
     public class Pos
     {
@@ -100,6 +104,7 @@ namespace Abelkhan
         public string UserGuid;
         public Int32 FenceId;
         public string FenceName;
+        public FenceType FenceType;
         public Pos start;
         public Pos end;
         public static MsgPack.MessagePackObjectDictionary Fence_to_protcol(Fence _struct){
@@ -111,6 +116,7 @@ namespace Abelkhan
             _protocol.Add("UserGuid", _struct.UserGuid);
             _protocol.Add("FenceId", _struct.FenceId);
             _protocol.Add("FenceName", _struct.FenceName);
+            _protocol.Add("FenceType", (Int32)_struct.FenceType);
             _protocol.Add("start", new MsgPack.MessagePackObject(Pos.Pos_to_protcol(_struct.start)));
             _protocol.Add("end", new MsgPack.MessagePackObject(Pos.Pos_to_protcol(_struct.end)));
             return _protocol;
@@ -130,6 +136,9 @@ namespace Abelkhan
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "FenceName"){
                     _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.FenceName = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "FenceType"){
+                    _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.FenceType = (FenceType)((MsgPack.MessagePackObject)i.Value).AsInt32();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "start"){
                     _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.start = Pos.protcol_to_Pos(((MsgPack.MessagePackObject)i.Value).AsDictionary());

@@ -19,10 +19,16 @@ struct Building {
 	Pos bottomRight;
 }
 
+enum FenceType {
+	Fence = 1;
+	FenceGate = 2;
+}
+
 struct Fence {
 	string UserGuid; // 所属用户uid
 	int32 FenceId; // 围栏id
 	string FenceName; // 围栏名称
+	FenceType FenceType;
 	Pos start;
 	Pos end;
 }
