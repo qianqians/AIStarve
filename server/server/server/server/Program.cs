@@ -28,6 +28,8 @@ namespace Server
             _hub.on_hubproxy += on_hubproxy;
             _hub.on_hubproxy_reconn += on_hubproxy;
 
+            _hub.on_client_disconnect += _hub_on_client_disconnect;
+
             _hub.onCloseServer += () => {
                 _hub.closeSvr();
             };
@@ -35,6 +37,11 @@ namespace Server
             Log.Log.trace("login start ok");
 
             _hub.run().Wait();
+        }
+
+        private static void _hub_on_client_disconnect(string uuid)
+        {
+            SceneMgr.ClientDisconnect(uuid);
         }
 
         private static void on_hubproxy(Hub.HubProxy _proxy)

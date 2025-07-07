@@ -1,5 +1,4 @@
 ﻿using Abelkhan;
-using InfluxData.Net.InfluxDb.Models.Responses;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -182,9 +181,18 @@ namespace Server
             } 
         }
 
+        private Dictionary<string, Player> netUUIDPlayers = new();
+        public Dictionary<string, Player> NetUUIDPlayers
+        {
+            get
+            {
+                return netUUIDPlayers;
+            }
+        }
+
         private Hub.DBProxyProxy dbProxy;
-        private string sceneName;
-        private string sceneUUID;
+        public string sceneName;
+        public string sceneUUID;
 
         private Task<List<string>> loadPlayers()
         {
@@ -305,10 +313,8 @@ namespace Server
             return false;
         }
 
-        public Task PlayerIntoScene(string userGuid, string userName, string userNetUUID)
+        public void PlayerIntoScene(string userGuid, string userName, string userNetUUID)
         {
-            var _t = new TaskCompletionSource();
-
             var player = players.GetValueOrDefault(userGuid, null);
             if (player == null)
             {
@@ -324,12 +330,25 @@ namespace Server
                     player.userInformation.Pos.X = x;
                     player.userInformation.Pos.Y = y;
                 } while (!CheckInFence(player.userInformation.Pos));
+
+                players.Add(userGuid, player);
+                netUUIDPlayers.Add(userNetUUID, player);
             }
-            player.NetUUID = Guid.NewGuid().ToString();
+            player.NetUUID = userNetUUID;
 
             SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(sceneInfo());
+        }
 
-            return _t.Task;
+        public void PlayerLevelScene(string userNetUUID)
+        {
+            var player = netUUIDPlayers.GetValueOrDefault(userNetUUID, null);
+            if (player != null)
+            {
+                player.NetUUID = string.Empty;
+                player.userInformation.dir = Direction.None;
+
+                SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(sceneInfo());
+            }
         }
     }
 
@@ -346,14 +365,43 @@ namespace Server
             private set { }
         }
 
-        public async Task<Scene> CreateScene(string sceneName)
+        private Dictionary<string, Scene> clientScenes = new();
+        public Dictionary<string, Scene> ClientScenes
         {
-            return await Scene.CreateScene(sceneName);
+            get
+            {
+                return clientScenes;
+            }
+
+            private set { }
         }
 
-        public Scene GetScene(string sceneName)
+        public async Task<Scene> CreateScene(string sceneName)
         {
-            return scenes.GetValueOrDefault(sceneName, null);
+            var scene = await Scene.CreateScene(sceneName);
+            scenes.Add(scene.sceneUUID, scene);
+            return scene;
+        }
+
+        public Scene GetScene(string sceneUUID)
+        {
+            return scenes.GetValueOrDefault(sceneUUID, null);
+        }
+
+        public void PlayerIntoScene(string sceneUUID, string userGuid, string userName, string userNetUUID)
+        {
+            if (scenes.TryGetValue(sceneUUID, out var scene))
+            {
+                scene.PlayerIntoScene(userGuid, userName, userNetUUID);
+            }
+        }
+
+        public void ClientDisconnect(string uuid)
+        {
+            if (clientScenes.TryGetValue(uuid, out var scene))
+            {
+                scene.PlayerLevelScene(uuid);
+            }
         }
     }
 }
