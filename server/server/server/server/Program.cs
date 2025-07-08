@@ -23,7 +23,9 @@ namespace Server
             HttpClientWrapper.Init();
 
             SceneMgr = new SceneMgr();
-            var _client_msg_handle = new client_msg_handle();
+            var _login_msg_handle = new login_msg_handle();
+            var _scene_mgr_msg_handle = new scene_mgr_msg_handle();
+            var _scene_msg_handle = new scene_msg_handle();
 
             _hub.on_hubproxy += on_hubproxy;
             _hub.on_hubproxy_reconn += on_hubproxy;

@@ -21,11 +21,11 @@ namespace Abelkhan
             module_rsp_cb = _module_rsp_cb;
         }
 
-        public event Action<string, SceneInfo, string> on_player_login_no_token_cb;
+        public event Action<List<scene_hub_info>> on_player_login_no_token_cb;
         public event Action<Int32> on_player_login_no_token_err;
         public event Action on_player_login_no_token_timeout;
 
-        public login_player_login_no_token_cb callBack(Action<string, SceneInfo, string> cb, Action<Int32> err)
+        public login_player_login_no_token_cb callBack(Action<List<scene_hub_info>> cb, Action<Int32> err)
         {
             on_player_login_no_token_cb += cb;
             on_player_login_no_token_err += err;
@@ -40,11 +40,11 @@ namespace Abelkhan
             on_player_login_no_token_timeout += timeout_cb;
         }
 
-        public void call_cb(string player_hub_name, SceneInfo sceneInfo, string mainPlayerUUID)
+        public void call_cb(List<scene_hub_info> info)
         {
             if (on_player_login_no_token_cb != null)
             {
-                on_player_login_no_token_cb(player_hub_name, sceneInfo, mainPlayerUUID);
+                on_player_login_no_token_cb(info);
             }
         }
 
@@ -78,13 +78,15 @@ namespace Abelkhan
 
         public void player_login_no_token_rsp(IList<MsgPack.MessagePackObject> inArray){
             var uuid = ((MsgPack.MessagePackObject)inArray[0]).AsUInt64();
-            var _player_hub_name = ((MsgPack.MessagePackObject)inArray[1]).AsString();
-            var _sceneInfo = SceneInfo.protcol_to_SceneInfo(((MsgPack.MessagePackObject)inArray[2]).AsDictionary());
-            var _mainPlayerUUID = ((MsgPack.MessagePackObject)inArray[3]).AsString();
+            var _info = new List<scene_hub_info>();
+            var _protocol_arrayinfo = ((MsgPack.MessagePackObject)inArray[1]).AsList();
+            foreach (var v_d856b000_56e0_5f62_a6f3_e6a0c7859745 in _protocol_arrayinfo){
+                _info.Add(scene_hub_info.protcol_to_scene_hub_info(((MsgPack.MessagePackObject)v_d856b000_56e0_5f62_a6f3_e6a0c7859745).AsDictionary()));
+            }
             var rsp = try_get_and_del_player_login_no_token_cb(uuid);
             if (rsp != null)
             {
-                rsp.call_cb(_player_hub_name, _sceneInfo, _mainPlayerUUID);
+                rsp.call_cb(_info);
             }
         }
 

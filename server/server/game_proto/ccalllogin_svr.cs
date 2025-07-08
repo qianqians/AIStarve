@@ -19,12 +19,14 @@ namespace Abelkhan
             uuid_b295d7ce_3d9c_398f_8f6a_ee7a40f01d25 = _uuid;
         }
 
-        public void rsp(string player_hub_name_e16830b9_52e1_36d5_aff7_3ebaf4d86eb0, SceneInfo sceneInfo_8fba8f66_6ef6_3128_a449_a21de99849de, string mainPlayerUUID_081b298b_b58f_322f_b612_039e5066983e){
+        public void rsp(List<scene_hub_info> info_391fd3d4_2d55_3f5e_9223_7f450a814a15){
             var _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf = new ArrayList();
             _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf.Add(uuid_b295d7ce_3d9c_398f_8f6a_ee7a40f01d25);
-            _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf.Add(player_hub_name_e16830b9_52e1_36d5_aff7_3ebaf4d86eb0);
-            _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf.Add(SceneInfo.SceneInfo_to_protcol(sceneInfo_8fba8f66_6ef6_3128_a449_a21de99849de));
-            _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf.Add(mainPlayerUUID_081b298b_b58f_322f_b612_039e5066983e);
+            var _array_391fd3d4_2d55_3f5e_9223_7f450a814a15 = new ArrayList();
+            foreach(var v_d856b000_56e0_5f62_a6f3_e6a0c7859745 in info_391fd3d4_2d55_3f5e_9223_7f450a814a15){
+                _array_391fd3d4_2d55_3f5e_9223_7f450a814a15.Add(scene_hub_info.scene_hub_info_to_protcol(v_d856b000_56e0_5f62_a6f3_e6a0c7859745));
+            }
+            _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf.Add(_array_391fd3d4_2d55_3f5e_9223_7f450a814a15);
             Hub.Hub._gates.call_client(_client_uuid_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf, "login_rsp_cb_player_login_no_token_rsp", _argv_3e2e7610_1bd3_3053_a6cb_55c17d6b8ebf);
         }
 

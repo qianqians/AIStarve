@@ -21,6 +21,43 @@ namespace Abelkhan
         FenceGatePWD = 3
     }
 /*this struct code is codegen by abelkhan codegen for c#*/
+    public class scene_hub_info
+    {
+        public string scene_name;
+        public string scene_guid;
+        public string scene_hub_id;
+        public static MsgPack.MessagePackObjectDictionary scene_hub_info_to_protcol(scene_hub_info _struct){
+        if (_struct == null) {
+            return null;
+        }
+
+            var _protocol = new MsgPack.MessagePackObjectDictionary();
+            _protocol.Add("scene_name", _struct.scene_name);
+            _protocol.Add("scene_guid", _struct.scene_guid);
+            _protocol.Add("scene_hub_id", _struct.scene_hub_id);
+            return _protocol;
+        }
+        public static scene_hub_info protcol_to_scene_hub_info(MsgPack.MessagePackObjectDictionary _protocol){
+        if (_protocol == null) {
+            return null;
+        }
+
+            var _struct5311f08d_a515_37bc_916b_6b3181601492 = new scene_hub_info();
+            foreach (var i in _protocol){
+                if (((MsgPack.MessagePackObject)i.Key).AsString() == "scene_name"){
+                    _struct5311f08d_a515_37bc_916b_6b3181601492.scene_name = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "scene_guid"){
+                    _struct5311f08d_a515_37bc_916b_6b3181601492.scene_guid = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "scene_hub_id"){
+                    _struct5311f08d_a515_37bc_916b_6b3181601492.scene_hub_id = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+            }
+            return _struct5311f08d_a515_37bc_916b_6b3181601492;
+        }
+    }
+
     public class Pos
     {
         public Int32 X;

@@ -1,3 +1,9 @@
+struct scene_hub_info {
+    string scene_name;
+    string scene_guid;
+    string scene_hub_id;
+}
+
 enum Direction {
 	None = 0;
 	Up = 1;

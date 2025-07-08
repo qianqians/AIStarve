@@ -11,7 +11,8 @@ namespace Abelkhan
     public enum em_error{
         timeout = -2,
         db_error = -1,
-        success = 0
+        success = 0,
+        scene_in_other_server = 1
     }
 /*this struct code is codegen by abelkhan codegen for c#*/
 /*this caller code is codegen by abelkhan codegen for c#*/

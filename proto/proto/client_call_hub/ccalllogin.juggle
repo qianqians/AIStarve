@@ -1,5 +1,5 @@
 import common
 
 module login{
-    player_login_no_token req(string account) rsp(string player_hub_name, SceneInfo sceneInfo, string mainPlayerUUID) err(int32 err);
+    player_login_no_token req(string account) rsp(scene_hub_info[] info) err(int32 err);
 }

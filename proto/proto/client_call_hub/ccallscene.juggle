@@ -1,6 +1,13 @@
 import common
 
+module scene_mgr {
+    get_scene_list req() rsp(scene_hub_info[] info) err(int32 errCode);
+    create_scene req(string scene_name) rsp(SceneInfo info) err(int32 errCode);
+    player_level_scene req(string scene_guid) rsp() err(int32 errCode); 
+    player_into_scene req(string scene_guid, string scene_name, string userGuid, string userName) rsp(SceneInfo info) err(int32 errCode, scene_hub_info hub_info);
+}
+
 module scene {
     move ntf(Pos start, Direction dir);
-    building ntf(Building[] buildings);
+    building ntf(Building[] buildings, Fence[] fences);
 }

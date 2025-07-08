@@ -7,152 +7,6 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public class PlayerFromDBError : System.Exception
-    {
-        public string Error;
-        public PlayerFromDBError(string err)
-        {
-            Error = err;
-        }
-    }
-
-    public class Player
-    {
-        public UserInformation userInformation = null;
-        public List<Fence> fences = [];
-        public List<Building> buildings = [];
-
-        private string netUUID = string.Empty;
-        public string NetUUID
-        {
-            get {
-                return netUUID;
-            }
-
-            set {
-                netUUID = value;
-            }
-        }
-
-        public bool IsOnline
-        {
-            get
-            {
-                return netUUID != string.Empty;
-            }
-
-            private set {}
-        }
-
-        private Hub.DBProxyProxy _dbProxy;
-
-        static private Task<UserInformation> loadUserInformation(Hub.DBProxyProxy _dbProxy, string sceneName, string userGuid)
-        {
-            var _t = new TaskCompletionSource<UserInformation>();
-
-            var query = new DBQueryHelper();
-            query.condition("DataType", "UserInformation");
-            query.condition("SceneName", sceneName);
-            query.condition("UserGuid", userGuid);
-            _dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
-                if (value.Count > 1)
-                {
-                    throw new PlayerFromDBError($"repeated sceneName:{sceneName} userGuid:{userGuid}");
-                }
-                else if (value.Count == 1)
-                {
-                    var doc = value[0] as BsonDocument;
-
-                    var _info = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<UserInformation>(doc);
-                    _t.SetResult(_info);
-                }
-                else
-                {
-                    _t.SetResult(null);
-                }
-            }, ()=>{ });
-
-            return _t.Task;
-        }
-
-        private Task loadFence(string sceneName, string userGuid)
-        {
-            var _t = new TaskCompletionSource();
-
-            var query = new DBQueryHelper();
-            query.condition("DataType", "UserFence");
-            query.condition("SceneName", sceneName);
-            query.condition("UserGuid", userGuid);
-            _dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
-                if (value.Count > 0)
-                {
-                    foreach (var doc in value)
-                    {
-                        var _fence = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<Fence>(doc as BsonDocument);
-                        fences.Add(_fence);
-                    }
-                }
-                else
-                {
-                }
-            }, () => {
-                _t.SetResult();
-            });
-
-            return _t.Task;
-        }
-
-        private Task loadBuilding(string sceneName, string userGuid)
-        {
-            var _t = new TaskCompletionSource();
-
-            var query = new DBQueryHelper();
-            query.condition("DataType", "UserBuilding");
-            query.condition("SceneName", sceneName);
-            query.condition("UserGuid", userGuid);
-            _dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
-                if (value.Count > 0)
-                {
-                    foreach (var doc in value)
-                    {
-                        var _building = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<Building>(doc as BsonDocument);
-                        buildings.Add(_building);
-                    }
-                }
-                else
-                {
-                }
-            }, () => {
-                _t.SetResult();
-            });
-
-            return _t.Task;
-        }
-
-        public static async Task<Player> LoadPlayer(Hub.DBProxyProxy _dbProxy, string sceneName, string userGuid)
-        {
-            var userInfo = await loadUserInformation(_dbProxy, sceneName, userGuid);
-            if (userInfo == null)
-            {
-                return null;
-            }
-
-            var player = new Player();
-            player._dbProxy = _dbProxy;
-            player.userInformation = userInfo;
-
-            await player.loadFence(sceneName, userGuid);
-            await player.loadBuilding(sceneName, userGuid);
-
-            return player;
-        }
-
-        public bool CheckInFence(Pos pos)
-        {
-            return false;
-        }
-    }
-
     public class Scene
     {
         public static int Length
@@ -193,7 +47,6 @@ namespace Server
         private Hub.DBProxyProxy dbProxy;
         public string sceneName;
         public string sceneUUID;
-
         private Task<List<string>> loadPlayers()
         {
             var _t = new TaskCompletionSource<List<string>>();
@@ -257,7 +110,7 @@ namespace Server
             {
                 foreach (var playerGuid in playerList)
                 {
-                    var player = await Player.LoadPlayer(scene.dbProxy, scene.sceneName, playerGuid);
+                    var player = await Player.LoadPlayer(scene.dbProxy, scene.sceneUUID, playerGuid);
                     if (player != null)
                     {
                         scene.Players.Add(playerGuid, player);
@@ -280,7 +133,7 @@ namespace Server
             return scene;
         }
 
-        private SceneInfo sceneInfo()
+        public SceneInfo SceneInfo()
         {
             var info = new SceneInfo();
             info.users = new List<UserInformation>();
@@ -299,6 +152,26 @@ namespace Server
             }
 
             return info;
+        }
+
+        public List<UserMoveInfo> MoveInfo()
+        {
+            var list = new List<UserMoveInfo>();
+
+            foreach (var p in players.Values)
+            {
+                if (!p.IsOnline)
+                {
+                    continue;
+                }
+
+                var info = new UserMoveInfo();
+                info.Pos = p.userInformation.Pos;
+                info.dir = p.userInformation.dir;
+                list.Add(info);
+            }
+
+            return list;
         }
 
         public bool CheckInFence(Pos pos)
@@ -336,7 +209,7 @@ namespace Server
             }
             player.NetUUID = userNetUUID;
 
-            SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(sceneInfo());
+            SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(SceneInfo());
         }
 
         public void PlayerLevelScene(string userNetUUID)
@@ -347,60 +220,31 @@ namespace Server
                 player.NetUUID = string.Empty;
                 player.userInformation.dir = Direction.None;
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(sceneInfo());
-            }
-        }
-    }
-
-    public class SceneMgr()
-    {
-        private Dictionary<string, Scene> scenes = new();
-        public Dictionary<string, Scene> Scenes
-        {
-            get
-            {
-                return scenes;
-            }
-
-            private set { }
-        }
-
-        private Dictionary<string, Scene> clientScenes = new();
-        public Dictionary<string, Scene> ClientScenes
-        {
-            get
-            {
-                return clientScenes;
-            }
-
-            private set { }
-        }
-
-        public async Task<Scene> CreateScene(string sceneName)
-        {
-            var scene = await Scene.CreateScene(sceneName);
-            scenes.Add(scene.sceneUUID, scene);
-            return scene;
-        }
-
-        public Scene GetScene(string sceneUUID)
-        {
-            return scenes.GetValueOrDefault(sceneUUID, null);
-        }
-
-        public void PlayerIntoScene(string sceneUUID, string userGuid, string userName, string userNetUUID)
-        {
-            if (scenes.TryGetValue(sceneUUID, out var scene))
-            {
-                scene.PlayerIntoScene(userGuid, userName, userNetUUID);
+                SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(SceneInfo());
             }
         }
 
-        public void ClientDisconnect(string uuid)
+        public void PlayerMove(string userNetUUID, Pos pos, Direction dir)
         {
-            if (clientScenes.TryGetValue(uuid, out var scene))
+            var player = netUUIDPlayers.GetValueOrDefault(userNetUUID, null);
+            if (player != null)
             {
-                scene.PlayerLevelScene(uuid);
+                player.userInformation.Pos = pos;
+                player.userInformation.dir = dir;
+
+                SceneClientCaller.get_multicast(players.Keys.ToList()).move(MoveInfo());
+            }
+        }
+
+        public void PlayerBuilding(string userNetUUID, List<Building> buildings, List<Fence> fences)
+        {
+            var player = netUUIDPlayers.GetValueOrDefault(userNetUUID, null);
+            if (player != null)
+            {
+                player.buildings.AddRange(buildings);
+                player.fences.AddRange(fences);
+
+                SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(SceneInfo());
             }
         }
     }

@@ -2,6 +2,7 @@ enum em_error{
 	timeout = -2;
 	db_error = -1;
 	success = 0;
+	scene_in_other_server = 1;
 }
 
 module error_code_ntf{
