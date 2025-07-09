@@ -85,6 +85,15 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 通过类型显示面板
+    /// </summary>
+    /// <typeparam name="T">面板类型</typeparam>
+    public void ShowPanel<T>() where T : UIBase
+    {
+        ShowPanel(typeof(T).Name);
+    }
+
+    /// <summary>
     /// 关闭当前显示的面板
     /// </summary>
     public void CloseCurrentPanel()
@@ -102,4 +111,18 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+    /// <summary>
+    /// 获取指定面板的RectTransform
+    /// </summary>
+    /// <param name="panelName">面板名称</param>
+    /// <returns>面板的RectTransform，如果不存在返回null</returns>
+    public RectTransform GetPanelTransform(string panelName)
+    {
+        if (_activePanels.TryGetValue(panelName, out var panel))
+        {
+            return panel.GetComponent<RectTransform>();
+        }
+        return null;
+    }
 }
+
