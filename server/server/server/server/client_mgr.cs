@@ -52,7 +52,7 @@ namespace Server
 
             var query = new DBQueryHelper();
             query.condition("DataType", "UserInformation");
-            query.condition("sceneUUID", sceneUUID);
+            query.condition("SceneUUID", sceneUUID);
             query.condition("UserGuid", userGuid);
             _dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
                 if (value.Count > 1)
@@ -81,7 +81,7 @@ namespace Server
 
             var query = new DBQueryHelper();
             query.condition("DataType", "UserFence");
-            query.condition("sceneUUID", sceneUUID);
+            query.condition("SceneUUID", sceneUUID);
             query.condition("UserGuid", userGuid);
             _dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
                 if (value.Count > 0)
@@ -108,7 +108,7 @@ namespace Server
 
             var query = new DBQueryHelper();
             query.condition("DataType", "UserBuilding");
-            query.condition("sceneUUID", sceneUUID);
+            query.condition("SceneUUID", sceneUUID);
             query.condition("UserGuid", userGuid);
             _dbProxy.getCollection("aiStarve", "game").getObjectInfo(query.query(), (value) => {
                 if (value.Count > 0)
