@@ -32,6 +32,8 @@ public class UIPool
     /// 从对象池获取UI实例
     /// </summary>
     /// <returns>可用的UI实例</returns>
+    private Canvas _canvas;
+    
     public UIBase Get()
     {
         if (_pool.Count == 0)
@@ -40,7 +42,18 @@ public class UIPool
         }
 
         var instance = _pool.Dequeue();
+        if (_canvas == null)
+        {
+            _canvas = Object.FindObjectOfType<Canvas>();
+            if (_canvas == null)
+            {
+                Debug.LogError("Cannot find Canvas in scene!");
+                return null;
+            }
+        }
+        
         instance.gameObject.SetActive(true);
+        instance.transform.SetParent(_canvas.transform);
         instance.OnCreate();
         return instance;
     }
@@ -70,12 +83,20 @@ public class UIPool
     /// <param name="count">要预热的实例数量</param>
     public void WarmUp(int count)
     {
+        var canvas = Object.FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("Cannot find Canvas in scene!");
+            return;
+        }
+
         for (int i = 0; i < count; i++)
         {
             var prefab = Resources.Load<GameObject>(_prefabPath);
-            var go = Object.Instantiate(prefab, _poolRoot);
+            var go = Object.Instantiate(prefab, canvas.transform);
             var ui = go.GetComponent<UIBase>();
             ui.PanelName = _panelName;
+            go.transform.SetParent(_poolRoot);
             go.SetActive(false);
             _pool.Enqueue(ui);
         }

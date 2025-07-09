@@ -3,12 +3,17 @@ using UnityEngine;
 /// <summary>
 /// UI面板基类，所有UI面板需要继承此类
 /// </summary>
-public abstract class UIBase : MonoBehaviour
+public class UIBase : MonoBehaviour
 {
     /// <summary>
     /// 面板关联的GameObject引用
     /// </summary>
     public new GameObject gameObject { get; protected set; }
+
+    /// <summary>
+    /// 面板的RectTransform组件缓存
+    /// </summary>
+    protected RectTransform rectTransform { get; private set; }
 
     /// <summary>
     /// 面板名称标识
@@ -18,8 +23,25 @@ public abstract class UIBase : MonoBehaviour
     protected virtual void Awake()
     {
         gameObject = base.gameObject;
+        rectTransform = gameObject.GetComponent<RectTransform>();
     }
 
+    private void OnRectTransformDimensionsChange()
+    {
+        OnWindowSizeChanged();
+    }
+
+    /// <summary>
+    /// 当窗口尺寸变化时调用
+    /// </summary>
+    protected virtual void OnWindowSizeChanged()
+    {
+        // 子类可重写此方法实现自定义响应逻辑
+    }
+    public virtual void Start()
+    {
+
+    }
     /// <summary>
     /// 面板创建时调用，用于初始化
     /// </summary>
