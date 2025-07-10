@@ -120,17 +120,19 @@ namespace Server
             try
             {
                 var scene = await Server.SceneMgr.CreateScene(sceneName);
-                rsp.rsp(scene.SceneInfo());
 
                 await Server.RedisHandle.Lock(RedisHelp.BuildLoadSceneLockKey(), token, 2000);
-                var _scene_info_list = await Server.RedisHandle.GetData<List<scene_hub_info>>(RedisHelp.BuildSceneInfoListKey());
-                _scene_info_list.Add(new scene_hub_info
+                var info = new scene_hub_info
                 {
                     scene_name = sceneName,
                     scene_guid = scene.sceneUUID,
                     scene_hub_id = Hub.Hub.name,
-                });
+                };
+                var _scene_info_list = await Server.RedisHandle.GetData<List<scene_hub_info>>(RedisHelp.BuildSceneInfoListKey());
+                _scene_info_list.Add(info);
                 await Server.RedisHandle.SetData(RedisHelp.BuildSceneInfoListKey(), _scene_info_list, RedisHelp.SceneInfoListTimeout);
+
+                rsp.rsp(info);
             }
             catch (System.Exception ex)
             {

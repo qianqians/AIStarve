@@ -77,11 +77,11 @@ namespace Abelkhan
             module_rsp_cb = _module_rsp_cb;
         }
 
-        public event Action<SceneInfo> on_create_scene_cb;
+        public event Action<scene_hub_info> on_create_scene_cb;
         public event Action<Int32> on_create_scene_err;
         public event Action on_create_scene_timeout;
 
-        public scene_mgr_create_scene_cb callBack(Action<SceneInfo> cb, Action<Int32> err)
+        public scene_mgr_create_scene_cb callBack(Action<scene_hub_info> cb, Action<Int32> err)
         {
             on_create_scene_cb += cb;
             on_create_scene_err += err;
@@ -96,7 +96,7 @@ namespace Abelkhan
             on_create_scene_timeout += timeout_cb;
         }
 
-        public void call_cb(SceneInfo info)
+        public void call_cb(scene_hub_info info)
         {
             if (on_create_scene_cb != null)
             {
@@ -300,7 +300,7 @@ namespace Abelkhan
 
         public void create_scene_rsp(IList<MsgPack.MessagePackObject> inArray){
             var uuid = ((MsgPack.MessagePackObject)inArray[0]).AsUInt64();
-            var _info = SceneInfo.protcol_to_SceneInfo(((MsgPack.MessagePackObject)inArray[1]).AsDictionary());
+            var _info = scene_hub_info.protcol_to_scene_hub_info(((MsgPack.MessagePackObject)inArray[1]).AsDictionary());
             var rsp = try_get_and_del_create_scene_cb(uuid);
             if (rsp != null)
             {
