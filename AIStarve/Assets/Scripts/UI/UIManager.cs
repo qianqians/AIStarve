@@ -53,6 +53,20 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 获取已激活的面板实例
+    /// </summary>
+    /// <param name="panelName">面板名称</param>
+    /// <returns>已激活的面板实例，如果未注册或没有激活实例返回null</returns>
+    public UIBase GetActivePanel(string panelName)
+    {
+        if (_panelPools.TryGetValue(panelName, out var pool))
+        {
+            return pool.GetFromActive();
+        }
+        return null;
+    }
+
+    /// <summary>
     /// 释放面板实例回对象池
     /// </summary>
     /// <param name="panelName">面板名称</param>

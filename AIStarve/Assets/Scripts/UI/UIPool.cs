@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -7,6 +8,7 @@ using UnityEngine;
 public class UIPool
 {
     private Queue<UIBase> _pool = new();
+    private Queue<UIBase> _activeInstances = new();
     private string _panelName;
     private string _prefabPath;
     private int _maxSize;
@@ -42,6 +44,15 @@ public class UIPool
         }
 
         var instance = _pool.Dequeue();
+        _activeInstances.Enqueue(instance);
+        
+        // 如果实例已经在Canvas下，直接返回
+        if (instance.transform.parent != null && instance.transform.parent.GetComponent<Canvas>() != null)
+        {
+            instance.gameObject.SetActive(true);
+            return instance;
+        }
+
         if (_canvas == null)
         {
             _canvas = Object.FindObjectOfType<Canvas>();
@@ -70,11 +81,25 @@ public class UIPool
             instance.gameObject.transform.SetParent(_poolRoot);
             instance.OnHide();
             _pool.Enqueue(instance);
+            _activeInstances = new Queue<UIBase>(_activeInstances.Where(x => x != instance));
         }
         else
         {
             Object.Destroy(instance.gameObject);
         }
+    }
+
+    /// <summary>
+    /// 从已激活的实例中获取UI实例
+    /// </summary>
+    /// <returns>已激活的UI实例，如果没有则返回null</returns>
+    public UIBase GetFromActive()
+    {
+        if (_activeInstances.Count > 0)
+        {
+            return _activeInstances.Peek();
+        }
+        return null;
     }
 
     /// <summary>
