@@ -36,7 +36,14 @@ public class netDriver : MonoBehaviour
         }
     }
 
-    private Abelkhan.scene_client_module _scene_client_Module;
+    private static Abelkhan.scene_client_module _scene_client_Module;
+    public static Abelkhan.scene_client_module SceneNtfModule
+    {
+        get
+        {
+            return _scene_client_Module;
+        }
+    }
 
     public static Task<Abelkhan.hub_info> GetHubInfo(string hubType)
     {
