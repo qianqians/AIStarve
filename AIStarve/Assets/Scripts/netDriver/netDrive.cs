@@ -1,8 +1,13 @@
+using System.Threading.Tasks;
+using Abelkhan;
 using UnityEngine;
 
 public class netDriver : MonoBehaviour
 {
-    private Client.Client _client;
+    public static string ServerHubName;
+    public static scene_hub_info SceneHubInfo;
+
+    private static Client.Client _client;
 
     private static Abelkhan.login_caller _login_caller;
     public static Abelkhan.login_caller LoginCaller
@@ -10,6 +15,15 @@ public class netDriver : MonoBehaviour
         get
         {
             return _login_caller;
+        }
+    }
+
+    private static Abelkhan.scene_mgr_caller _scene_mgr_caller;
+    public static Abelkhan.scene_mgr_caller SceneMgrCaller
+    {
+        get
+        {
+            return _scene_mgr_caller;
         }
     }
 
@@ -22,7 +36,27 @@ public class netDriver : MonoBehaviour
         }
     }
 
-    private Abelkhan.scene_client_module _scene_client_Module;
+    private static Abelkhan.scene_client_module _scene_client_Module;
+    public static Abelkhan.scene_client_module SceneNtfModule
+    {
+        get
+        {
+            return _scene_client_Module;
+        }
+    }
+
+    public static Task<Abelkhan.hub_info> GetHubInfo(string hubType)
+    {
+        var _t = new TaskCompletionSource<Abelkhan.hub_info>();
+
+        _client.get_hub_info(hubType, (_info) =>
+        {
+            ServerHubName = _info.hub_name;
+            _t.SetResult(_info);
+        });
+
+        return _t.Task;
+    }
 
     void Start()
     {
@@ -31,6 +65,7 @@ public class netDriver : MonoBehaviour
         _client = new Client.Client();
         _login_caller = new Abelkhan.login_caller(_client);
         _scene_caller = new Abelkhan.scene_caller(_client);
+        _scene_mgr_caller = new scene_mgr_caller(_client);
 
         _scene_client_Module = new Abelkhan.scene_client_module(_client);
 
