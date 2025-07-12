@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,74 @@ public class UIManager : MonoBehaviour
     private Dictionary<string, UIPool> _panelPools = new();
     private Dictionary<string, UIBase> _activePanels = new();
     private Stack<UIBase> _panelStack = new();
+
+    // 事件处理器字典
+    private Dictionary<UIEventType.Event, Action<UIEventType.EventArgs>> _eventHandlers =
+        new Dictionary<UIEventType.Event, Action<UIEventType.EventArgs>>();
+
+    /// <summary>
+    /// 注册UI事件处理器
+    /// </summary>
+    public void RegisterEvent(UIEventType.Event eventType, Action<UIEventType.EventArgs> handler)
+    {
+        if (_eventHandlers.ContainsKey(eventType))
+        {
+            _eventHandlers[eventType] += handler;
+        }
+        else
+        {
+            _eventHandlers[eventType] = handler;
+        }
+    }
+
+    /// <summary>
+    /// 取消注册UI事件处理器
+    /// </summary>
+    public void UnregisterEvent(UIEventType.Event eventType, Action<UIEventType.EventArgs> handler)
+    {
+        if (_eventHandlers.ContainsKey(eventType))
+        {
+            _eventHandlers[eventType] -= handler;
+        }
+    }
+
+    /// <summary>
+    /// 触发UI事件
+    /// </summary>
+    public void TriggerEvent(UIEventType.Event eventType, UIEventType.EventArgs args = null)
+    {
+        if (args == null)
+        {
+            args = new UIEventType.EventArgs();
+        }
+        args.EventType = eventType;
+
+        // 处理按钮点击事件时检查是否需要打开新面板
+        if (eventType == UIEventType.Event.ButtonClick && !string.IsNullOrEmpty(args.PanelToOpen))
+        {
+            if (args.PanelToOpen == nameof(SceneObjectSelect))
+            {
+                // 添加空值保护
+                if (PanelStateMachine.Instance != null)
+                {
+                    PanelStateMachine.Instance.OnButtonClick(args.PanelToOpen);
+                }
+                else
+                {
+                    Debug.LogError("PanelStateMachine instance is null!");
+                }
+            }
+            else
+            {
+                ShowPanel(args.PanelToOpen);
+            }
+        }
+
+        if (_eventHandlers.TryGetValue(eventType, out var handler))
+        {
+            handler?.Invoke(args);
+        }
+    }
 
     private void Awake()
     {
@@ -91,10 +160,15 @@ public class UIManager : MonoBehaviour
             if (_panelStack.Count > 0)
             {
                 _panelStack.Peek().OnHide();
+                TriggerEvent(UIEventType.Event.PanelClose,
+                    new UIEventType.EventArgs { PanelName = _panelStack.Peek().PanelName });
             }
+            
             _panelStack.Push(panel);
             _activePanels[panelName] = panel;
             panel.OnShow();
+            TriggerEvent(UIEventType.Event.PanelOpen,
+                new UIEventType.EventArgs { PanelName = panelName });
         }
     }
 
@@ -116,6 +190,8 @@ public class UIManager : MonoBehaviour
         {
             var panel = _panelStack.Pop();
             panel.OnHide();
+            TriggerEvent(UIEventType.Event.PanelClose,
+                new UIEventType.EventArgs { PanelName = panel.PanelName });
             ReleasePanel(panel.PanelName, panel);
             _activePanels.Remove(panel.PanelName);
 

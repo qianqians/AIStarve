@@ -2,24 +2,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class LeftBottomPanel : UIBase
+public class SceneObjectSelect : UIBase
 {
-    public const string PrefabPath = "Perfabs/LeftBottomPanel"; // 直接放在Resources根目录
+    public const string PrefabPath = "Perfabs/SceneObjectSelect";
     private RectTransform _rectTransform = null;
 
     public override void Start()
     {
         base.Start();
-        var panel = UIManager.Instance.GetActivePanel("LeftBottomPanel");
+        var panel = UIManager.Instance.GetActivePanel("SceneObjectSelect");
         _rectTransform = panel?.GetComponent<RectTransform>();
         
         OnWindowSizeChanged();
-
-    }
-    public override void OnCreate()
-    {
-        base.OnCreate();
-        
     }
 
     private float _lastUpdateTime;
@@ -27,13 +21,11 @@ public class LeftBottomPanel : UIBase
 
     private void UpdatePanelPosition()
     {
-        // 限制执行频率：每0.5秒最多执行一次
         if (Time.time - _lastUpdateTime < 0.5f)
         {
             return;
         }
 
-        // 检查窗口尺寸是否真的变化了
         Vector2 currentWindowSize = new Vector2(Screen.width, Screen.height);
         if (currentWindowSize == _lastWindowSize)
         {
@@ -42,36 +34,34 @@ public class LeftBottomPanel : UIBase
 
         if (_rectTransform != null)
         {
-            // 获取窗口尺寸
+            float windowWidth = currentWindowSize.x;
             float windowHeight = currentWindowSize.y;
             
-            _rectTransform.offsetMin = new Vector2(0, 50); // left, bottom
-            _rectTransform.offsetMax = new Vector2(-322, -(windowHeight /2) -50); // right, top
+            // 设置面板在右上角
+            _rectTransform.offsetMin = new Vector2(windowWidth/2 + 50, 50); // left, bottom
+            _rectTransform.offsetMax = new Vector2(-50, -50); // right, top
 
             _lastWindowSize = currentWindowSize;
             _lastUpdateTime = Time.time;
         }
     }
+
     private Coroutine _resizeCoroutine;
     
     protected override void OnWindowSizeChanged()
     {
-        // 如果已有延迟协程在运行，先停止它
         if (_resizeCoroutine != null)
         {
             StopCoroutine(_resizeCoroutine);
         }
         
-        // 启动新的延迟协程
         _resizeCoroutine = StartCoroutine(DelayedUpdatePosition());
     }
     
     private IEnumerator DelayedUpdatePosition()
     {
-        // 等待0.5秒没有新的尺寸变化后再执行
         yield return new WaitForSeconds(0.5f);
         UpdatePanelPosition();
         _resizeCoroutine = null;
     }
-
 }
