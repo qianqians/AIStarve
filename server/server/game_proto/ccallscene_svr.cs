@@ -174,6 +174,7 @@ namespace Abelkhan
         public scene_module()
         {
             Hub.Hub._modules.add_mothed("scene_move", move);
+            Hub.Hub._modules.add_mothed("scene_remove_building", remove_building);
             Hub.Hub._modules.add_mothed("scene_building", building);
         }
 
@@ -183,6 +184,23 @@ namespace Abelkhan
             var _dir = (Direction)((MsgPack.MessagePackObject)inArray[1]).AsInt32();
             if (on_move != null){
                 on_move(_start, _dir);
+            }
+        }
+
+        public event Action<List<Building>, List<Fence>> on_remove_building;
+        public void remove_building(IList<MsgPack.MessagePackObject> inArray){
+            var _buildings = new List<Building>();
+            var _protocol_arraybuildings = ((MsgPack.MessagePackObject)inArray[0]).AsList();
+            foreach (var v_4435b032_5f03_5920_bcc2_f3356d041cc1 in _protocol_arraybuildings){
+                _buildings.Add(Building.protcol_to_Building(((MsgPack.MessagePackObject)v_4435b032_5f03_5920_bcc2_f3356d041cc1).AsDictionary()));
+            }
+            var _fences = new List<Fence>();
+            var _protocol_arrayfences = ((MsgPack.MessagePackObject)inArray[1]).AsList();
+            foreach (var v_56d10c41_4026_53fb_9ea6_b39368068a37 in _protocol_arrayfences){
+                _fences.Add(Fence.protcol_to_Fence(((MsgPack.MessagePackObject)v_56d10c41_4026_53fb_9ea6_b39368068a37).AsDictionary()));
+            }
+            if (on_remove_building != null){
+                on_remove_building(_buildings, _fences);
             }
         }
 

@@ -29,6 +29,12 @@ namespace Abelkhan
             rsp_cb_scene_client_handle = rsp_cb_scene_client_handle_;
         }
 
+        public void scene_info(SceneInfo info){
+            var _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8 = new ArrayList();
+            _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8.Add(SceneInfo.SceneInfo_to_protcol(info));
+            Hub.Hub._gates.call_client(client_uuid_e2b3f311_3d11_3958_8f94_f53379eb568e, "scene_client_scene_info", _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8);
+        }
+
     }
 
     public class scene_client_multicast {
@@ -40,10 +46,34 @@ namespace Abelkhan
             rsp_cb_scene_client_handle = rsp_cb_scene_client_handle_;
         }
 
-        public void scene_info(SceneInfo info){
-            var _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8 = new ArrayList();
-            _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8.Add(SceneInfo.SceneInfo_to_protcol(info));
-            Hub.Hub._gates.call_group_client(client_uuids_e2b3f311_3d11_3958_8f94_f53379eb568e, "scene_client_scene_info", _argv_eaa1df1b_59b5_3e8d_8e20_b592765a38a8);
+        public void remove_scene_info(List<Building> buildings, List<Fence> fences){
+            var _argv_636b2a7a_df6c_3375_b7c3_981255ddfc2d = new ArrayList();
+            var _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9 = new ArrayList();
+            foreach(var v_08f36ecb_8228_5356_bb8a_753f8de7b7e3 in buildings){
+                _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9.Add(Building.Building_to_protcol(v_08f36ecb_8228_5356_bb8a_753f8de7b7e3));
+            }
+            _argv_636b2a7a_df6c_3375_b7c3_981255ddfc2d.Add(_array_98ba47f5_b9b8_3536_9493_f5e2255b10a9);
+            var _array_60122d00_e773_3786_860e_24d7a883c2c6 = new ArrayList();
+            foreach(var v_a0e1ef11_65fe_5230_bfee_169cb74ff5e0 in fences){
+                _array_60122d00_e773_3786_860e_24d7a883c2c6.Add(Fence.Fence_to_protcol(v_a0e1ef11_65fe_5230_bfee_169cb74ff5e0));
+            }
+            _argv_636b2a7a_df6c_3375_b7c3_981255ddfc2d.Add(_array_60122d00_e773_3786_860e_24d7a883c2c6);
+            Hub.Hub._gates.call_group_client(client_uuids_e2b3f311_3d11_3958_8f94_f53379eb568e, "scene_client_remove_scene_info", _argv_636b2a7a_df6c_3375_b7c3_981255ddfc2d);
+        }
+
+        public void building_scene_info(List<Building> buildings, List<Fence> fences){
+            var _argv_35b1cb39_ec39_3ac9_80c5_56fa5338db62 = new ArrayList();
+            var _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9 = new ArrayList();
+            foreach(var v_08f36ecb_8228_5356_bb8a_753f8de7b7e3 in buildings){
+                _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9.Add(Building.Building_to_protcol(v_08f36ecb_8228_5356_bb8a_753f8de7b7e3));
+            }
+            _argv_35b1cb39_ec39_3ac9_80c5_56fa5338db62.Add(_array_98ba47f5_b9b8_3536_9493_f5e2255b10a9);
+            var _array_60122d00_e773_3786_860e_24d7a883c2c6 = new ArrayList();
+            foreach(var v_a0e1ef11_65fe_5230_bfee_169cb74ff5e0 in fences){
+                _array_60122d00_e773_3786_860e_24d7a883c2c6.Add(Fence.Fence_to_protcol(v_a0e1ef11_65fe_5230_bfee_169cb74ff5e0));
+            }
+            _argv_35b1cb39_ec39_3ac9_80c5_56fa5338db62.Add(_array_60122d00_e773_3786_860e_24d7a883c2c6);
+            Hub.Hub._gates.call_group_client(client_uuids_e2b3f311_3d11_3958_8f94_f53379eb568e, "scene_client_building_scene_info", _argv_35b1cb39_ec39_3ac9_80c5_56fa5338db62);
         }
 
         public void move(List<UserMoveInfo> info){
