@@ -15,8 +15,44 @@ namespace Abelkhan
         public scene_client_module(Client.Client client_handle_) 
         {
             _client_handle = client_handle_;
+            _client_handle.modulemanager.add_mothed("scene_client_remove_scene_info", remove_scene_info);
+            _client_handle.modulemanager.add_mothed("scene_client_building_scene_info", building_scene_info);
             _client_handle.modulemanager.add_mothed("scene_client_scene_info", scene_info);
             _client_handle.modulemanager.add_mothed("scene_client_move", move);
+        }
+
+        public event Action<List<Building>, List<Fence>> on_remove_scene_info;
+        public void remove_scene_info(IList<MsgPack.MessagePackObject> inArray){
+            var _buildings = new List<Building>();
+            var _protocol_arraybuildings = ((MsgPack.MessagePackObject)inArray[0]).AsList();
+            foreach (var v_4435b032_5f03_5920_bcc2_f3356d041cc1 in _protocol_arraybuildings){
+                _buildings.Add(Building.protcol_to_Building(((MsgPack.MessagePackObject)v_4435b032_5f03_5920_bcc2_f3356d041cc1).AsDictionary()));
+            }
+            var _fences = new List<Fence>();
+            var _protocol_arrayfences = ((MsgPack.MessagePackObject)inArray[1]).AsList();
+            foreach (var v_56d10c41_4026_53fb_9ea6_b39368068a37 in _protocol_arrayfences){
+                _fences.Add(Fence.protcol_to_Fence(((MsgPack.MessagePackObject)v_56d10c41_4026_53fb_9ea6_b39368068a37).AsDictionary()));
+            }
+            if (on_remove_scene_info != null){
+                on_remove_scene_info(_buildings, _fences);
+            }
+        }
+
+        public event Action<List<Building>, List<Fence>> on_building_scene_info;
+        public void building_scene_info(IList<MsgPack.MessagePackObject> inArray){
+            var _buildings = new List<Building>();
+            var _protocol_arraybuildings = ((MsgPack.MessagePackObject)inArray[0]).AsList();
+            foreach (var v_4435b032_5f03_5920_bcc2_f3356d041cc1 in _protocol_arraybuildings){
+                _buildings.Add(Building.protcol_to_Building(((MsgPack.MessagePackObject)v_4435b032_5f03_5920_bcc2_f3356d041cc1).AsDictionary()));
+            }
+            var _fences = new List<Fence>();
+            var _protocol_arrayfences = ((MsgPack.MessagePackObject)inArray[1]).AsList();
+            foreach (var v_56d10c41_4026_53fb_9ea6_b39368068a37 in _protocol_arrayfences){
+                _fences.Add(Fence.protcol_to_Fence(((MsgPack.MessagePackObject)v_56d10c41_4026_53fb_9ea6_b39368068a37).AsDictionary()));
+            }
+            if (on_building_scene_info != null){
+                on_building_scene_info(_buildings, _fences);
+            }
         }
 
         public event Action<SceneInfo> on_scene_info;

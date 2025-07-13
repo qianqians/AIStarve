@@ -19,6 +19,7 @@ struct Pos {
 
 struct Building {
 	string UserGuid;  // 所属用户uid
+	string BuildingGuid; // 建筑uid
 	int32 BuildingId; // 建筑id
 	string BuildingResource; // 建筑图片资源
 	Pos topLeft;
@@ -33,6 +34,7 @@ enum FenceType {
 
 struct Fence {
 	string UserGuid; // 所属用户uid
+	string FenceGuid; // 围栏uid
 	int32 FenceId; // 围栏id
 	string FenceName; // 围栏名称
 	FenceType FenceType;

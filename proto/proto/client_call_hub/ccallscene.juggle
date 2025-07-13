@@ -9,5 +9,6 @@ module scene_mgr {
 
 module scene {
     move ntf(Pos start, Direction dir);
+    remove_building ntf(Building[] buildings, Fence[] fences);
     building ntf(Building[] buildings, Fence[] fences);
 }

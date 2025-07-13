@@ -568,6 +568,21 @@ namespace Abelkhan
             _client_handle.call_hub(hub_name_d9ff8761_7787_3ada_910b_8924a79ea4fb, "scene_move", _argv_33efb72e_9227_32af_a058_169be114a277);
         }
 
+        public void remove_building(List<Building> buildings, List<Fence> fences){
+            var _argv_902c91ab_d52f_3cce_9a07_6204aa146597 = new ArrayList();
+            var _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9 = new ArrayList();
+            foreach(var v_08f36ecb_8228_5356_bb8a_753f8de7b7e3 in buildings){
+                _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9.Add(Building.Building_to_protcol(v_08f36ecb_8228_5356_bb8a_753f8de7b7e3));
+            }
+            _argv_902c91ab_d52f_3cce_9a07_6204aa146597.Add(_array_98ba47f5_b9b8_3536_9493_f5e2255b10a9);
+            var _array_60122d00_e773_3786_860e_24d7a883c2c6 = new ArrayList();
+            foreach(var v_a0e1ef11_65fe_5230_bfee_169cb74ff5e0 in fences){
+                _array_60122d00_e773_3786_860e_24d7a883c2c6.Add(Fence.Fence_to_protcol(v_a0e1ef11_65fe_5230_bfee_169cb74ff5e0));
+            }
+            _argv_902c91ab_d52f_3cce_9a07_6204aa146597.Add(_array_60122d00_e773_3786_860e_24d7a883c2c6);
+            _client_handle.call_hub(hub_name_d9ff8761_7787_3ada_910b_8924a79ea4fb, "scene_remove_building", _argv_902c91ab_d52f_3cce_9a07_6204aa146597);
+        }
+
         public void building(List<Building> buildings, List<Fence> fences){
             var _argv_202540e5_3aa7_324c_85c8_f7da9821e7e6 = new ArrayList();
             var _array_98ba47f5_b9b8_3536_9493_f5e2255b10a9 = new ArrayList();

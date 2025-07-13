@@ -209,7 +209,7 @@ namespace Server
             }
             player.NetUUID = userNetUUID;
 
-            SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(SceneInfo());
+            SceneClientCaller.get_client(userNetUUID).scene_info(SceneInfo());
         }
 
         public void PlayerLevelScene(string userNetUUID)
@@ -220,7 +220,7 @@ namespace Server
                 player.NetUUID = string.Empty;
                 player.userInformation.dir = Direction.None;
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(SceneInfo());
+                SceneClientCaller.get_multicast(players.Keys.ToList()).move(MoveInfo());
             }
         }
 
@@ -236,6 +236,39 @@ namespace Server
             }
         }
 
+        public void PlayerRemoveBuilding(string userNetUUID, List<Building> buildings, List<Fence> fences)
+        {
+            var player = netUUIDPlayers.GetValueOrDefault(userNetUUID, null);
+            if (player != null)
+            {
+                foreach (var building in buildings)
+                {
+                    foreach (var i in player.buildings)
+                    {
+                        if (building.BuildingGuid == i.BuildingGuid)
+                        {
+                            player.buildings.Remove(i);
+                            break;
+                        }
+                    }
+                }
+
+                foreach (var fence in fences)
+                {
+                    foreach (var i in player.fences)
+                    {
+                        if (i.FenceGuid == fence.FenceGuid)
+                        {
+                            player.fences.Remove(i);
+                            break;
+                        }
+                    }
+                }
+
+                SceneClientCaller.get_multicast(players.Keys.ToList()).remove_scene_info(buildings, fences);
+            }
+        }
+
         public void PlayerBuilding(string userNetUUID, List<Building> buildings, List<Fence> fences)
         {
             var player = netUUIDPlayers.GetValueOrDefault(userNetUUID, null);
@@ -244,7 +277,7 @@ namespace Server
                 player.buildings.AddRange(buildings);
                 player.fences.AddRange(fences);
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).scene_info(SceneInfo());
+                SceneClientCaller.get_multicast(players.Keys.ToList()).building_scene_info(buildings, fences);
             }
         }
     }

@@ -1,6 +1,8 @@
 import common
 
 module scene_client{
-    scene_info multicast(SceneInfo info);
+    remove_scene_info multicast(Building[] buildings, Fence[] fences);
+    building_scene_info multicast(Building[] buildings, Fence[] fences);
+    scene_info ntf(SceneInfo info);
     move multicast(UserMoveInfo[] info);
 }

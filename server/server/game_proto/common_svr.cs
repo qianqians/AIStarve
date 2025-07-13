@@ -93,6 +93,7 @@ namespace Abelkhan
     public class Building
     {
         public string UserGuid;
+        public string BuildingGuid;
         public Int32 BuildingId;
         public string BuildingResource;
         public Pos topLeft;
@@ -104,6 +105,7 @@ namespace Abelkhan
 
             var _protocol = new MsgPack.MessagePackObjectDictionary();
             _protocol.Add("UserGuid", _struct.UserGuid);
+            _protocol.Add("BuildingGuid", _struct.BuildingGuid);
             _protocol.Add("BuildingId", _struct.BuildingId);
             _protocol.Add("BuildingResource", _struct.BuildingResource);
             _protocol.Add("topLeft", new MsgPack.MessagePackObject(Pos.Pos_to_protcol(_struct.topLeft)));
@@ -119,6 +121,9 @@ namespace Abelkhan
             foreach (var i in _protocol){
                 if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
                     _structe37b319b_d83e_3aee_bc74_701941f721c3.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "BuildingGuid"){
+                    _structe37b319b_d83e_3aee_bc74_701941f721c3.BuildingGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "BuildingId"){
                     _structe37b319b_d83e_3aee_bc74_701941f721c3.BuildingId = ((MsgPack.MessagePackObject)i.Value).AsInt32();
@@ -140,6 +145,7 @@ namespace Abelkhan
     public class Fence
     {
         public string UserGuid;
+        public string FenceGuid;
         public Int32 FenceId;
         public string FenceName;
         public FenceType FenceType;
@@ -152,6 +158,7 @@ namespace Abelkhan
 
             var _protocol = new MsgPack.MessagePackObjectDictionary();
             _protocol.Add("UserGuid", _struct.UserGuid);
+            _protocol.Add("FenceGuid", _struct.FenceGuid);
             _protocol.Add("FenceId", _struct.FenceId);
             _protocol.Add("FenceName", _struct.FenceName);
             _protocol.Add("FenceType", (Int32)_struct.FenceType);
@@ -168,6 +175,9 @@ namespace Abelkhan
             foreach (var i in _protocol){
                 if (((MsgPack.MessagePackObject)i.Key).AsString() == "UserGuid"){
                     _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.UserGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
+                }
+                else if (((MsgPack.MessagePackObject)i.Key).AsString() == "FenceGuid"){
+                    _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.FenceGuid = ((MsgPack.MessagePackObject)i.Value).AsString();
                 }
                 else if (((MsgPack.MessagePackObject)i.Key).AsString() == "FenceId"){
                     _struct6b7c8548_5d21_315c_a6ed_b41891d0e4d8.FenceId = ((MsgPack.MessagePackObject)i.Value).AsInt32();
