@@ -70,7 +70,12 @@ public class netSceneMgr
     {
         var _t = new TaskCompletionSource<SceneInfo>();
 
-        netDriver.SceneMgrCaller.get_hub(sceneHubInfo.scene_name).player_into_scene(
+        var serverName = sceneHubInfo.scene_name;
+        if (string.IsNullOrEmpty(serverName))
+        {
+            serverName = netDriver.ServerHubName;
+        }
+        netDriver.SceneMgrCaller.get_hub(serverName).player_into_scene(
             sceneHubInfo.scene_guid, sceneHubInfo.scene_name, playerGuid, playerName).callBack((sceneInfo) =>
             {
                 netDriver.SceneHubInfo = sceneHubInfo;

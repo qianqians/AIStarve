@@ -26,7 +26,17 @@ public class UIPool
         _prefabPath = prefabPath;
         _maxSize = maxSize;
         _poolRoot = new GameObject($"[Pool]{panelName}").transform;
-        _poolRoot.SetParent(UIManager.Instance.transform);
+        
+        // 添加空值保护
+        if (UIManager.Instance != null)
+        {
+            _poolRoot.SetParent(UIManager.Instance.transform);
+        }
+        else
+        {
+            Debug.LogWarning($"UIManager instance not found for {panelName} pool. Using root as parent.");
+        }
+        
         WarmUp(1);
     }
 
@@ -118,8 +128,20 @@ public class UIPool
         for (int i = 0; i < count; i++)
         {
             var prefab = Resources.Load<GameObject>(_prefabPath);
+            if (prefab == null)
+            {
+                Debug.LogError($"Failed to load prefab from path: {_prefabPath}");
+                return;
+            }
+
             var go = Object.Instantiate(prefab, canvas.transform);
             var ui = go.GetComponent<UIBase>();
+            if (ui == null)
+            {
+                Debug.LogError($"Prefab {_prefabPath} is missing UIBase component!");
+                return;
+            }
+
             ui.PanelName = _panelName;
             go.transform.SetParent(_poolRoot);
             go.SetActive(false);
