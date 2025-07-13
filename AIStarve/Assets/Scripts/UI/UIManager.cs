@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     private Dictionary<string, UIPool> _panelPools = new();
     private Dictionary<string, UIBase> _activePanels = new();
     private Stack<UIBase> _panelStack = new();
+    private DropPrefabObject _dropPrefabObject;
 
     // 事件处理器字典
     private Dictionary<UIEventType.Event, Action<UIEventType.EventArgs>> _eventHandlers =
@@ -75,6 +76,40 @@ public class UIManager : MonoBehaviour
                 ShowPanel(args.PanelToOpen);
             }
         }
+        else if(eventType == UIEventType.Event.TilemapToolChanged && !string.IsNullOrEmpty(args.PrefabPath))
+        {
+            // 添加空值保护
+            if (PanelStateMachine.Instance != null && _dropPrefabObject != null)
+            {
+                PanelStateMachine.Instance.ChangeState(PanelStateMachine.PanelState.ObjectSelect);
+                if (args.PointerData != null)
+                {
+                    _dropPrefabObject.OnBeginDrag(args.PointerData);
+                    _dropPrefabObject.StartDrag(args.PrefabPath);
+                }
+                else
+                {
+                    Debug.LogError("PointerData is null!");
+                }
+            }
+            else
+            {
+                Debug.LogError("PanelStateMachine instance or _dropPrefabObject is null!");
+            }
+        }
+
+        else if (eventType == UIEventType.Event.TilemapToolDragging)
+        {
+            // 添加空值保护
+            if (_dropPrefabObject != null)
+            {
+                _dropPrefabObject.OnDrag(args.PointerData);
+            }
+            else
+            {
+                Debug.LogError("_dropPrefabObject is null!");
+            }
+        }
 
         if (_eventHandlers.TryGetValue(eventType, out var handler))
         {
@@ -90,6 +125,7 @@ public class UIManager : MonoBehaviour
             return;
         }
         _instance = this;
+        _dropPrefabObject = gameObject.AddComponent<DropPrefabObject>();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -157,13 +193,7 @@ public class UIManager : MonoBehaviour
         var panel = GetPanel(panelName);
         if (panel != null)
         {
-            if (_panelStack.Count > 0)
-            {
-                _panelStack.Peek().OnHide();
-                TriggerEvent(UIEventType.Event.PanelClose,
-                    new UIEventType.EventArgs { PanelName = _panelStack.Peek().PanelName });
-            }
-            
+                      
             _panelStack.Push(panel);
             _activePanels[panelName] = panel;
             panel.OnShow();
@@ -213,6 +243,9 @@ public class UIManager : MonoBehaviour
             return panel.GetComponent<RectTransform>();
         }
         return null;
+    }
+    public void ShowObjectSelection()
+    { 
     }
 }
 

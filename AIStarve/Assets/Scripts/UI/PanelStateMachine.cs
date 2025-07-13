@@ -8,7 +8,8 @@ public class PanelStateMachine : MonoBehaviour
         None,
         MainMenu,
         GamePlay,
-        SceneObjectSelect
+        SceneObjectSelect,
+        ObjectSelect,
     }
 
     private static PanelStateMachine _instance;
@@ -41,6 +42,7 @@ public class PanelStateMachine : MonoBehaviour
         Debug.Log("PanelStateMachine initialized successfully.");
         // 初始化状态处理器
         _stateHandlers[PanelState.SceneObjectSelect] = HandleSceneObjectSelect;
+        _stateHandlers[PanelState.ObjectSelect] = HandleObjectSelect;
     }
 
     public void ChangeState(PanelState newState)
@@ -51,11 +53,19 @@ public class PanelStateMachine : MonoBehaviour
         switch (_currentState)
         {
             case PanelState.SceneObjectSelect:
-                UIManager.Instance.CloseCurrentPanel();
+               // UIManager.Instance.CloseCurrentPanel();//不需要关闭窗口
                 break;
         }
 
         _currentState = newState;
+        
+        // 进入新状态
+        switch (newState)
+        {
+            case PanelState.SceneObjectSelect:
+                UIManager.Instance.ShowObjectSelection();
+                break;
+        }
 
         // 进入新状态
         if (_stateHandlers.TryGetValue(newState, out var handler))
@@ -76,12 +86,29 @@ public class PanelStateMachine : MonoBehaviour
             UIManager.Instance.ShowPanel<SceneObjectSelect>();
         }
     }
-
+    private void HandleObjectSelect()
+    {
+        ChangeState(PanelState.ObjectSelect);
+        UIManager.Instance.ShowObjectSelection();
+    }
     public void OnButtonClick(string panelToOpen)
     {
         if (panelToOpen == nameof(SceneObjectSelect))
         {
-            ChangeState(PanelState.SceneObjectSelect);
+            // 如果当前已经是SceneObjectSelect状态则关闭面板
+            if (_currentState == PanelState.SceneObjectSelect)
+            {
+                ChangeState(PanelState.None);
+                Debug.Log("Closing SceneObjectSelect panel");
+            }
+            else
+            {
+                ChangeState(PanelState.SceneObjectSelect);
+                Debug.Log("Opening SceneObjectSelect panel");
+            }
+        }else if(panelToOpen == nameof(PanelState.ObjectSelect))
+        {
+
         }
     }
 }
