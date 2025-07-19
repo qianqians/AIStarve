@@ -149,6 +149,8 @@ namespace Server
 
         public bool CheckInFence(Pos pos)
         {
+
+
             return false;
         }
     }

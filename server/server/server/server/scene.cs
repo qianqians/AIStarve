@@ -202,12 +202,12 @@ namespace Server
                     var x = RandomHelper.RandomInt(Width);
                     player.userInformation.Pos.X = x;
                     player.userInformation.Pos.Y = y;
-                } while (!CheckInFence(player.userInformation.Pos));
+                } while (CheckInFence(player.userInformation.Pos));
 
                 players.Add(userGuid, player);
-                netUUIDPlayers.Add(userNetUUID, player);
             }
             player.NetUUID = userNetUUID;
+            netUUIDPlayers.Add(userNetUUID, player);
 
             SceneClientCaller.get_client(userNetUUID).scene_info(SceneInfo());
         }
@@ -219,8 +219,9 @@ namespace Server
             {
                 player.NetUUID = string.Empty;
                 player.userInformation.dir = Direction.None;
+                netUUIDPlayers.Remove(userNetUUID);
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).move(MoveInfo());
+                SceneClientCaller.get_multicast(netUUIDPlayers.Keys.ToList()).move(MoveInfo());
             }
         }
 
@@ -232,7 +233,7 @@ namespace Server
                 player.userInformation.Pos = pos;
                 player.userInformation.dir = dir;
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).move(MoveInfo());
+                SceneClientCaller.get_multicast(netUUIDPlayers.Keys.ToList()).move(MoveInfo());
             }
         }
 
@@ -265,7 +266,7 @@ namespace Server
                     }
                 }
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).remove_scene_info(buildings, fences);
+                SceneClientCaller.get_multicast(netUUIDPlayers.Keys.ToList()).remove_scene_info(buildings, fences);
             }
         }
 
@@ -277,7 +278,7 @@ namespace Server
                 player.buildings.AddRange(buildings);
                 player.fences.AddRange(fences);
 
-                SceneClientCaller.get_multicast(players.Keys.ToList()).building_scene_info(buildings, fences);
+                SceneClientCaller.get_multicast(netUUIDPlayers.Keys.ToList()).building_scene_info(buildings, fences);
             }
         }
     }
